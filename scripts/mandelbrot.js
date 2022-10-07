@@ -13,13 +13,18 @@ function Start(){
     canvas = document.getElementById('canvas');
     qSlider = document.getElementById("qualitySlider");
     iSlider = document.getElementById("iterationSlider");
+
     MaxIterations = iSlider.max/2*10;
-    document.getElementById("quality").innerHTML = (qSlider.value)/qSlider.max*100;
-    document.getElementById("iteration").innerHTML = MaxIterations;
-    ctx = canvas.getContext('2d');
     zoom = 0.5;
     x = 0;
     y = 0;
+
+    document.getElementById("quality").innerHTML = (qSlider.value)/qSlider.max*100;
+    document.getElementById("iteration").innerHTML = MaxIterations;
+    document.getElementById("zoom").innerHTML = zoom;
+
+    ctx = canvas.getContext('2d');
+    
     console.log(qSlider.value);
     console.log(parseInt(qSlider.value));
     quality = 5;
@@ -61,10 +66,6 @@ function getMousePos(canvas, evt) {
     };
 }
 
-function Refresh(){
-    MandelBrot(x, y, zoom, MaxIterations);
-}
-
 function drawPixel(xx, yy, color) {
     ctx.fillStyle = color || '#000';
   	ctx.fillRect(xx, yy, quality, quality);
@@ -93,13 +94,15 @@ function MandelBrot(xx, yy, zoom, MaxIterations){
 }
 
 function ZoomIn(){
-    zoom += 5;
+    zoom *= 2;
+    document.getElementById("zoom").innerHTML = zoom;
     MandelBrot(x, y, zoom, MaxIterations)
 }
 
 function ZoomOut(){
-    if(zoom <= 5)return;
-    zoom -= 5;
+    if(zoom <= 0)return;
+    zoom /= 2;
+    document.getElementById("zoom").innerHTML = zoom;
     MandelBrot(x, y, zoom, MaxIterations);
 }
 

@@ -33,13 +33,7 @@ a {
     color: rgb(211, 211, 211);
 }
 
-section div.navigation{
-    background: green;
-}
 
-section.mandel{
-    display: flex;
-}
 
 section.element {
     display: flex;
@@ -48,6 +42,11 @@ section.element {
 
 section.element div.navigation{
     background: green;
+}
+
+section.element div.navigation div.slider{
+    background: yellow;
+    display: flex;
 }
 
 
