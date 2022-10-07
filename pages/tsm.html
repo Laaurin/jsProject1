@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveling Sales Man</title>
+    <script src="../scripts/tsml.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body onload="Start()">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">page</a></li>
+                <li><a href="tsm.html">Traveling Sales Man</a></li>
+                <li><a href = "mandelbrot.html">Mandelbrot</a></li>
+            </ul>
+        </nav>
+        <h1>Traveling Sales Man</h1>
+    </header>
+
+    <section>
+        <div>
+            <canvas id = 'canvas', width = 1080, height = 720></canvas>
+        </div>
+
+        <div class="slideContainer">
+            <input type="range" min = "1" max="100" id="mySlider" class="slider"/>
+            <p>value: <span id="value"></span></p>
+        </div>
+        
+        <div>
+            <button onclick="SolveWithNearestNeighbour()">Nearest Neighbour</button>
+            <button onclick="SolveWithGenetic()">Genetic Algorithm</button>
+            <button onclick="SolveWithBruteForce()">Brute Force</button>
+            <button onclick="ClearTowns()">Clear Towns</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>distance: <span id="distance"></span></p>
+    </footer>
+    
+        
+    
+    
+    <div>
+        
+    </div>
+    
+
+</body>
+</html> 

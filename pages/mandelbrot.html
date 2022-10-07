@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandelbrot</title>
+    <script src="../scripts/mandelbrot.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body onload="Start()">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">page</a></li>
+                <li><a href="tsm.html">Traveling Sales Mans</a></li>
+                <li><a href="tsm.html">Mandelbrot Set</a></li>
+
+
+            </ul>
+        </nav>
+        <h1>The Mandelbrot Set</h1>
+    </header>
+
+    <section class="mandel">
+        
+        <div>
+            <canvas width="1920" height = "1080" id = "canvas"></canvas>
+        </div>
+            
+       
+
+
+        <div class="navigation">
+            <button onclick="ZoomIn()">zoom in</button>
+            <button onclick="ZoomOut()">zoom out</button>
+        
+
+            
+                <input type="range" min="0" max="10" value = "5" id="qualitySlider">
+                <p>Quality: <span id="quality"></span>%</p>
+            
+            
+            
+                <input type="range" min="0" max="100" value = "50" id="iterationSlider">
+                <p>Iterations: <span id="iteration"></span></p>
+            
+            
+        </div>
+            
+        
+
+        
+        
+    </section>
+
+    <footer>
+    </footer>
+    
+        
+    
+    
+    <div>
+        
+    </div>
+    
+
+</body>
+</html> 
