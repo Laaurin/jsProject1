@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tree</title>
-    <script src="../scripts/tree.js"></script>
+    <title>triangle</title>
+    <script src="../scripts/triangle.js"></script>
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../styles/tree.css">
-
 </head>
 <body onload="Start()">
     <header>
@@ -31,28 +29,10 @@
             <canvas id = 'canvas', width = 1080, height = 720></canvas>
         </div>
 
-        <div class="navigation">
-            <div class="slider">
-            <input type="range" min="0" max="180" value = "90" id="angleSlider">
-            <p>angle: <span id="alpha"></span></p>
-            </div>
-
-            <div class="slider">
-                <input type="range" min="0" max="15" value = "7" id="depthSlider">
-                <p>depth: <span id="depth"></span></p>
-            </div>
-
-            <div class="slider">
-                <input type="range" min="0" max="50" value = "25" id="lengthSlider">
-                <p>length: <span id="length"></span></p>
-            </div>
-
-            <div class="slider">
-                <input type="range" min="0" max="100" value = "76" id="factorSlider">
-                <p>factor: <span id="factor"></span></p>
-            </div>
+        <div class="slider">
+            <input type="range" min="0" max="10" value = "0" id="iterationSlider">
+            <p>iterations: <span id="iteration"></span></p>
         </div>
-        
     </section>
 
     <footer>

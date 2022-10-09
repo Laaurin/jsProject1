@@ -2,33 +2,59 @@ let canvas;
 let ctx;
 let xx;
 let yy;
-let alpha;
+let alpha = 90;
 let aSlider;
+let dSlider;
+let lSlider;
+let fSlider;
+
+let factor = 0.67;
+
+let x1, y1, x2, y2;
+
 
 
 
 function Start(){
     canvas = document.getElementById('canvas');
     aSlider = document.getElementById('angleSlider');
+    dSlider = document.getElementById('depthSlider');
+    lSlider = document.getElementById('lengthSlider');
+    fSlider = document.getElementById('factorSlider');
     ctx = canvas.getContext('2d');
 
     canvas.width = window.innerWidth * 0.8;
     canvas.height = window.innerHeight * 0.8;
+
+    let depth = 4;
+    let length = 250;
+    let y = canvas.height;
     
     document.getElementById('alpha').innerHTML = alpha;
+    document.getElementById('depth').innerHTML = depth;
+    document.getElementById('length').innerHTML = length/10;
+    document.getElementById('factor').innerHTML = factor;
+
+
+
+    lSlider.maxValue = canvas.height;
 
     xx = canvas.width/2;
     yy = canvas.height;
 
 
-    Tree2(350);
+    Tree2(canvas.width/2, y, length, 90, depth);
 
-    
-    //Tree(400);
+    //animate(400, 300, 24, 56);
+
+    //x1 = 200, y1 = 20, x2 = 415, y2 = 300;
+    //animate();
+
+
+
 
     aSlider.oninput = function(){
-        if(alpha == 360) aSlider.value = 0;
-        ctx.fillStyle = "#3b3b3b";
+        ctx.fillStyle = "#323232";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         alpha = parseInt(aSlider.value);
         console.log(alpha);
@@ -37,10 +63,79 @@ function Start(){
         yy = canvas.height;
 
 
-        Tree(400);
+        Tree2(canvas.width/2, y, length, 90, depth);
+
+    }
+
+    dSlider.oninput = function(){
+        ctx.fillStyle = "#323232";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        depth = parseInt(dSlider.value);
+        console.log("depth: ", depth);
+        document.getElementById("depth").innerHTML = depth;
+        xx = canvas.width/2;
+        yy = canvas.height;
+
+
+        Tree2(canvas.width/2, y, length, 90, depth);
+    }
+
+    lSlider.oninput = function(){
+        ctx.fillStyle = "#323232";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        length = parseInt(lSlider.value) * 10;
+        console.log("length: ", length);
+        document.getElementById("length").innerHTML = lSlider.value;
+        xx = canvas.width/2;
+        yy = canvas.height;
+
+
+        Tree2(canvas.width/2, y, length, 90, depth);
+    }
+
+    fSlider.oninput = function(){
+        ctx.fillStyle = "#323232";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        factor = parseInt(fSlider.value) / 100;
+        console.log("factor: ", factor);
+        document.getElementById("factor").innerHTML = factor;
+        xx = canvas.width/2;
+        yy = canvas.height;
+
+
+        Tree2(canvas.width/2, y, length, 90, depth);
     }
 
 }
+
+function drawLine(x1,y1,x2,y2,ratio) {
+    //ctx.fillRect(0,0,300,300);
+    ctx.moveTo(x1,y1);
+    x2 = x1 + ratio * (x2-x1);
+    y2 = y1 + ratio * (y2-y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
+
+  function animate(ratio) {
+    ratio = ratio || 0;
+    drawLine(x1, y1, x2, y2,ratio);
+    if(ratio<1) {
+      requestAnimationFrame(function() {
+        animate(ratio + 0.01);
+      });
+    }
+  }
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
 function Tree(len){
     ctx.fillStyle = 'black';
     //ctx.lineWidth = 4;
@@ -48,7 +143,7 @@ function Tree(len){
     ctx.moveTo(xx, yy);
     // ctx.lineTo(xx, yy-len);
     // yy -= len;
-    DrawLine(len*0.67, 90, 15);
+    DrawLine(len*0.67, 90, 10);
 
 
     ctx.stroke();
@@ -84,23 +179,23 @@ function DrawLine(len, angle, depth){
 
 }
 
-function Tree2(len){
+function oldTree2(len){
 
-    ctx.strokeStyle = 'white';
+    ctx.strokeStyle = 'black';
     // ctx.lineTo(xx, yy-len);
     // yy -= len;
-    DrawLine2(canvas.width/2, canvas.height, len*0.67, 90, 10);
+    DrawLine2(canvas.width/2, canvas.height, len*0.67, 90, 4);
 
 
 }
 
-function DrawLine2(fx, fy, len, angle, depth){
+function Tree2(fx, fy, len, angle, depth){
     if(depth == 0)return;
     let x = fx + Math.cos(angle * Math.PI / 180) * len;
     let y = fy - Math.sin(angle * Math.PI / 180) * len;
 
     //ctx.strokeStyle = GetColor(depth);
-    //ctx.lineWidth = depth;
+    //ctx.lineWidth = depth / 2;
 
     ctx.beginPath();
     ctx.moveTo(fx, fy);
@@ -108,6 +203,13 @@ function DrawLine2(fx, fy, len, angle, depth){
     ctx.stroke();
     
     ctx.closePath();
+
+    // x1 = fx;
+    // x2 = x;
+    // y1 = fy;
+    // y2 = y;
+
+    // animate();
 
     fx = x;
     fy = y;
@@ -117,11 +219,22 @@ function DrawLine2(fx, fy, len, angle, depth){
     ctx.moveTo(xx, yy);
     
 
-    DrawLine2(fx, fy, len*0.67, angle+alpha, depth-1);
-    ctx.closePath();
-    ctx.beginPath();
-    //ctx.moveTo(x, y);
-    DrawLine2(fx, fy, len*0.67, angle-alpha, depth-1);
+    // Tree2(fx, fy, len*0.67, angle+alpha, depth-1);
+    // Tree2(fx, fy, len*0.67, angle-alpha, depth-1);
+    Tree2(fx, fy, len * factor, angle+alpha, depth-1);
+    Tree2(fx, fy, len * factor, angle-alpha, depth-1);
+    //Tree2(fx, fy, len*0.67, angle, depth-1);
+
+    // if(Math.random() > 0.5){
+    //     Tree2(fx, fy, len*0.67, angle-alpha/2, depth-1);
+    // }
+    // else{
+    //     Tree2(fx, fy, len*0.67, angle+alpha/2, depth-1);
+    // }
+    
+
+
+
 
 
 }

@@ -1,0 +1,15 @@
+section{
+    display: flex;
+}
+
+section div.navigation{
+    background: rgb(39, 39, 39);
+
+}
+
+section div.slider{
+    display: flex;
+    margin-right: 20px;
+}
+
+
