@@ -35,20 +35,6 @@ a {
 
 
 
-section.element {
-    display: flex;
-    background: red;
-}
-
-section.element div.navigation{
-    background: green;
-}
-
-section.element div.navigation div.slider{
-    background: yellow;
-    display: flex;
-}
-
 
 
 

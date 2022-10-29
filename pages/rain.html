@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tree</title>
-    <script src="../scripts/tree.js"></script>
+    <title>glücksrad</title>
+    <script src="../scripts/rain.js"></script>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../styles/tree.css">
 
@@ -20,6 +20,8 @@
                 <li><a href = "tree.html">tree</a></li>
                 <li><a href = "triangle.html">triangle</a></li>
                 <li><a href = "lightspeed.html">lightspeed</a></li>
+                <li><a href = "rain.html">rain</a></li>
+
 
 
 
@@ -30,13 +32,15 @@
 
     <section>
         <div>
-            <canvas id = 'canvas', width = 1080, height = 720></canvas>
+            <canvas id = 'canvas', width = 720, height = 720></canvas>
         </div>
+
+        <button onclick="Roll()">roll</button>
 
         <div class="navigation">
             <div class="slider">
-            <input type="range" min="0" max="180" value = "90" id="angleSlider">
-            <p>angle: <span id="alpha"></span></p>
+                <input type="range" min="1" max="100" value = "5" id="sectionSlider">
+                <p>sections: <span id="sections"></span></p>
             </div>
 
             <div class="slider">

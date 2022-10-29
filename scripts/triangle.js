@@ -28,14 +28,18 @@ function Start(){
 
     ctx.strokeStyle = 'black';
     
-    //triangle(x, y, size, 0);
-    //animate();
+    triangle(x, y, size, 7);
+    
+
+    //triangle2(x, y, size, 4);
+    //animate2();
     
     iSlider.oninput = function(){
         iteration = iSlider.value;
         document.getElementById('iteration').innerHTML = iteration;
 
-        ctx.fillStyle = "#3b3b3b";
+        ctx.fillStyle = "#323232";
+
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         triangle(x, y , size, iteration);
     }
@@ -61,6 +65,43 @@ function triangle(x, y, size, iteration){
 
 }
 
+
+function triangle2(x, y, size, iteration){
+    //ctx.fillStyle = 'black';
+    if(size < 30) return;
+    let height = Math.sqrt(3)*size/2
+
+    ctx.beginPath();
+    ctx.moveTo(x+size/2, y);
+    ctx.lineTo(x+size/4*3, y-height/2);
+    ctx.lineTo(x+size/4, y-height/2);
+    ctx.fill();
+    ctx.closePath();
+    ctx.stroke();
+
+
+    triangle2(x, y, size/2, iteration-1);
+    triangle2(x+size/2, y, size/2, iteration-1);
+    triangle2(x+size/4, y-height/2, size/2, iteration-1);
+
+
+}
+
+function animate2(){
+    ctx.fillStyle = "#323232";
+    requestAnimationFrame(animate2);
+    ctx.fillRect(0, 0, width, height);
+
+    triangle2(x, y, size++, iter);
+
+    if(size > (canvas.height * 2 / Math.sqrt(3)-2)*2){
+        size = canvas.height * 2 / Math.sqrt(3)-2;
+
+    }
+
+}
+
+
 function animate(){
     ctx.fillStyle = "#323232";
 
@@ -80,6 +121,8 @@ function animate(){
         console.log("nooooow")
         shrinked = false;
     }
+
+    
 
 
     // triangle(x, y, size--, iter);

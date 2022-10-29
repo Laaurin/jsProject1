@@ -26,8 +26,8 @@ function Start(){
     canvas.width = window.innerWidth * 0.8;
     canvas.height = window.innerHeight * 0.8;
 
-    let depth = 4;
-    let length = 250;
+    let depth = 10;
+    let length = 350;
     let y = canvas.height;
     
     document.getElementById('alpha').innerHTML = alpha;
@@ -57,7 +57,6 @@ function Start(){
         ctx.fillStyle = "#323232";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         alpha = parseInt(aSlider.value);
-        console.log(alpha);
         document.getElementById("alpha").innerHTML = alpha;
         xx = canvas.width/2;
         yy = canvas.height;
@@ -71,7 +70,6 @@ function Start(){
         ctx.fillStyle = "#323232";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         depth = parseInt(dSlider.value);
-        console.log("depth: ", depth);
         document.getElementById("depth").innerHTML = depth;
         xx = canvas.width/2;
         yy = canvas.height;
@@ -84,7 +82,6 @@ function Start(){
         ctx.fillStyle = "#323232";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         length = parseInt(lSlider.value) * 10;
-        console.log("length: ", length);
         document.getElementById("length").innerHTML = lSlider.value;
         xx = canvas.width/2;
         yy = canvas.height;
@@ -97,7 +94,6 @@ function Start(){
         ctx.fillStyle = "#323232";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         factor = parseInt(fSlider.value) / 100;
-        console.log("factor: ", factor);
         document.getElementById("factor").innerHTML = factor;
         xx = canvas.width/2;
         yy = canvas.height;

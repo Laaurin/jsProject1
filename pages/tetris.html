@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>triangle</title>
-    <script src="../scripts/triangle.js"></script>
+    <title>tetris</title>
+    <script src="../scripts/tetris.js"></script>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../styles/tree.css">
+
 </head>
 <body onload="Start()">
     <header>
@@ -17,24 +19,30 @@
                 <li><a href = "mandelbrot.html">Mandelbrot</a></li>
                 <li><a href = "tree.html">tree</a></li>
                 <li><a href = "triangle.html">triangle</a></li>
-                <li><a href = "lightspeed.html">lightspeed</a></li>
+                <li><a href = "tetris.html">tetris</a></li>
 
 
 
             </ul>
         </nav>
-        <h1>tree</h1>
+        <h1>tetris</h1>
     </header>
 
     <section>
-        <div>
-            <canvas id = 'canvas', width = 1080, height = 720></canvas>
+        <div onmousemove="getMousePos(event)">
+            <canvas id = 'canvas', width = 1080, height = 720, ></canvas>
         </div>
 
-        <div class="slider">
-            <input type="range" min="0" max="10" value = "0" id="iterationSlider">
-            <p>iterations: <span id="iteration"></span></p>
+        <div class="navigation">
+            <div class="slider">
+            <input type="range" min="0" max="180" value = "90" id="angleSlider">
+            <p>angle: <span id="alpha"></span></p>
+            <button onclick="rotate()">drehen</button>
+            </div>
+
+           
         </div>
+        
     </section>
 
     <footer>
