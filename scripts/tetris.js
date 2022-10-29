@@ -32,7 +32,7 @@ function Start(){
     blocksize = canvas.height / 30;
     x = canvas.width/2-width*(blocksize+linewidth)/2;
 
-    fps = 2;
+    fps = 5;
 
     fpsInterval = 1000 / fps;
     then = Date.now();
@@ -53,7 +53,10 @@ document.addEventListener('keydown', function(event) {
     }
     
     else if(event.keyCode == 38) {
-        currentShape.rotate();
+        let rotated = getRotatedShape(currentShape);
+        if(validPosition(rotated, rotated.x, rotated.y)) {
+            currentShape.rotate();
+        }
     }
 
     else if(event.keyCode == 39) {
@@ -61,7 +64,7 @@ document.addEventListener('keydown', function(event) {
     }
 
     else if(event.keyCode == 40){
-        storeShape();
+            storeShape();
     }
 
     else if(event.keyCode == 80 || event.keyCode == 27){
@@ -129,9 +132,7 @@ function play2(){
 }
 
 function dropAll(height){
-    console.log("here")
     while(height > 0){
-        console.log(height);
         for(let i = 0; i < width; i++){
             grid[height][i] = grid[height-1][i];
         }
@@ -158,7 +159,7 @@ function tetris(){
             dropAll(i);
             i = height;
         }
-        if(empty == true) return false;
+        //if(empty == true) return count;
     }
     return count;
 }
@@ -173,15 +174,11 @@ function validPosition(shape, newX, newY){
     for(let i = 0; i < shape.shape.length; i++){
         //idx = newX + i % shape.len + (newY + Math.floor(i / shape.len))*width;
         if(shape.shape[i] == 0) continue;
-        try{
-            if(grid[newY+Math.floor(i/shape.len)][newX + (i % shape.len)] > 0) return false;
 
-        }
-        catch{
-            console.log("newY: " + newY + "i: " + i)
-            console.log(newY+Math.floor(i/shape.len))
-        }
         if(newY + Math.floor(i/shape.len) >= height) return false;
+
+        if(grid[newY+Math.floor(i/shape.len)][newX + (i % shape.len)] > 0) return false;
+        
         if(newX + (i % shape.len) >= width || newX + (i % shape.len) < 0) return false;
     }
     return true;
@@ -232,6 +229,16 @@ function drop(shape){
     requestAnimationFrame(() => drop);
     //return true;
     //setTimeout(this.drop(shape), 5000);
+}
+
+function getRotatedShape(shape){
+    let rotated = new Shape(shape.value-1, shape.x, shape.y);
+
+    for (let i = 0; i < shape.shape.length; i++)
+    {
+        rotated.shape[i] = shape.shape[shape.shape.length - shape.len - shape.len * (i % shape.len) + Math.floor(i / shape.len)];
+    }
+    return rotated;
 }
 
 function printGrid(){
@@ -291,7 +298,7 @@ function drawNextShape(){
 
     for(let i = 0; i < nextShape.shape.length; i++){
         if(nextShape.shape[i] > 0){
-            ctx.fillRect(x + (width+2 + i%nextShape.len) * (blocksize + linewidth) + linewidth/2, y + Math.floor(i/nextShape.len) * (blocksize + linewidth) + linewidth/2, blocksize, blocksize);
+            ctx.fillRect(x + (width+2 + i%nextShape.len) * (blocksize + linewidth) + linewidth / 2, y + Math.floor(i/nextShape.len) * (blocksize + linewidth) + linewidth / 2, blocksize, blocksize);
         }
     }
 }
