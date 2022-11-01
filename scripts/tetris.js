@@ -53,7 +53,7 @@ document.addEventListener('keydown', function(event) {
     }
     
     else if(event.keyCode == 38) {
-        if(validPosition(getRotatedShape(currentShape), currentShape.x, currentShape.y)) currentShape.rotate();
+        //if(validPosition(getRotatedShape(currentShape), currentShape.x, currentShape.y)) currentShape.rotate();
         
         let rotated = getRotatedShape(currentShape);
         if(validPosition(rotated, rotated.x, rotated.y)) {
