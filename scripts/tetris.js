@@ -48,7 +48,12 @@ function Start(){
 }
 
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 37) {
+
+    if(event.keyCode == 32) {
+        fpsInterval = 20;
+    }
+
+    else if(event.keyCode == 37) {
         if(validPosition(currentShape, currentShape.x-1, currentShape.y)) currentShape.x--;
     }
     
@@ -120,6 +125,7 @@ function play2(){
 
         // Put your drawing code here
         if(drop(currentShape)){
+            fpsInterval = 1000 / fps;
             if(tetris()) console.log("TETRIS")
             currentShape = nextShape;
             nextShape = getNewShape();
