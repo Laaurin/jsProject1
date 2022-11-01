@@ -53,7 +53,8 @@ document.addEventListener('keydown', function(event) {
     }
     
     else if(event.keyCode == 38) {
-        currentShape.rotate();
+        if(validPosition(getRotatedShape(currentShape), currentShape.x, currentShape.y)) currentShape.rotate();
+        
     }
 
     else if(event.keyCode == 39) {
@@ -165,6 +166,16 @@ function tetris(){
 
 function getNewShape(){
     return new Shape(Math.floor(Math.random()*6), 4, 0);
+}
+
+function getRotatedShape(shape){
+    
+
+    
+    let rotated = new Shape(shape.value-1, shape.x, shape.y);
+    rotated.shape = shape.shape.slice();
+    rotated.rotate();
+    return rotated;
 }
     
 
