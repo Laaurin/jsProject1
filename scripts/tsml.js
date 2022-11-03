@@ -6,7 +6,15 @@ let order = [];
 let totalDistance = 0;
 let backgroundColor = "#3b3b3b";
 
+let popSize = 30;
 
+let population = []
+
+let shortestDist = Infinity;
+
+let bestOrder = [];
+
+var fps, fpsInterval, startTime, now, then, elapsed;
 
 function Start(){
     canvas = document.getElementById('canvas');
@@ -26,6 +34,12 @@ function Start(){
 
     FillTownArray();
 
+    fps = 1;
+
+    fpsInterval = 1000 / fps;
+    then = Date.now();
+    startTime = then;
+
     
     //t.NearestNeighbour(t.order);
 
@@ -33,6 +47,150 @@ function Start(){
 
 
 
+}
+
+function initGenetic(){
+    if(towns.length < 1) return;
+    console.log("genetic algorithm solution");
+
+    for(let i = 0; i < towns.length; i++){
+        order[i] = i;
+    }
+    
+
+    for(let i = 0; i < popSize; i++){
+        //random anordnung
+            population[i] = Shuffle(order.slice(), order.length);
+            //beste aussuchen
+            let distance = GetTotalDistance(population[i])
+            if(distance < shortestDist){
+                shortestDist = distance;
+                bestOrder = population[i];
+                
+            }
+        }
+    population = Mutate(bestOrder, popSize);
+    Connect(order);
+
+    GeneticAlg(order);
+}
+
+function GeneticAlg(order){
+
+    requestAnimationFrame(GeneticAlg);
+
+    now = Date.now();
+
+    elapsed = now - then;
+
+
+    console.log("working");
+
+    for(let i = 0; i < popSize; i++){
+        let distance = GetTotalDistance(population[i])
+
+        if(distance < shortestDist){
+            shortestDist = distance;
+            totalDistance = shortestDist;
+            bestOrder = population[i];
+            console.log("distance: ", totalDistance);
+            document.getElementById('distance').innerHTML = Math.round(totalDistance);
+            Connect(bestOrder);
+        }
+        //neue population mit mutationen
+        population = Mutate(bestOrder, popSize);
+    
+    }
+
+    if (elapsed > fpsInterval) {
+
+
+        // Get ready for next frame by setting then=now, but also adjust for your
+        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+        then = now - (elapsed % fpsInterval);
+
+        // Put your drawing code here
+       
+        Connect(bestOrder);
+
+
+        
+    }
+        
+}
+
+function Mutate(order, popSize){
+    let population = [];
+    //population[0] = order.slice();
+    for(let i = 0; i < popSize; i++){
+        population[i] = this.Shuffle(order.slice(), 1);
+    }
+    return population;
+}
+
+function Shuffle(order, amount){
+    for(let i = 0; i < amount; i++){
+        let indexA = Math.floor(Math.random() * order.length);
+        let indexB = Math.floor(Math.random() * order.length);
+
+        this.Swap(order, indexA, indexB)
+    }
+    return order;
+}
+
+function GetTotalDistance(order){
+        
+    let distance = 0;
+    for(let i = 1; i < order.length; i++){
+        distance += GetDistance(towns[order[i-1]], towns[order[i]]);
+    }
+    distance += GetDistance(towns[order[towns.length-1]], towns[order[0]]);
+    return distance;
+    
+   
+}
+
+function GetDistance(townA, townB){
+    try{
+        return Math.abs(Math.sqrt(Math.pow(townB.x - townA.x, 2) + Math.pow(townB.y - townA.y, 2)));
+    }
+    catch{
+        console.log("A: ", townA);
+        console.log("B: ", townB);
+
+    }
+}
+
+function Connect(order){
+    //ctx.strokeStyle = 'red';
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'black';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(towns[order[0]].x, towns[order[0]].y);
+    for(let i = 1; i < order.length; i++){
+        ctx.lineTo(towns[order[i]].x, towns[order[i]].y);
+        
+        //this.towns[i].Draw(i);
+
+    }
+    ctx.closePath();
+    ctx.stroke();
+
+    for(let i = 0; i < order.length; i++){
+        
+        towns[i].Draw(i);
+
+    }
+
+    
+}
+
+function Swap(arr, indA, indB){
+    let temp = arr[indA];
+    arr[indA] = arr[indB];
+    arr[indB] = temp;
 }
 
 function FillTownArray(){
@@ -78,14 +236,15 @@ function SolveWithNearestNeighbour(){
 }
 
 function SolveWithGenetic(){
-    if(towns.length < 1) return;
-    console.log("genetic algorithm solution");
-    let t = new Tour(towns);
-    order = t.GeneticAlg(t.order);
-    t.Connect(order);
-    totalDistance = t.GetTotalDistance(order);
-    console.log("distance: ", totalDistance);
-    document.getElementById('distance').innerHTML = Math.round(totalDistance);
+    initGenetic();
+    // if(towns.length < 1) return;
+    // console.log("genetic algorithm solution");
+    // let t = new Tour(towns);
+    // order = t.GeneticAlg(t.order);
+    // t.Connect(order);
+    // totalDistance = t.GetTotalDistance(order);
+    // console.log("distance: ", totalDistance);
+    // document.getElementById('distance').innerHTML = Math.round(totalDistance);
 }
 
 function SolveWithBruteForce(){
