@@ -50,9 +50,9 @@ function Start(){
     ctx.fillText("holding:", x - 6 * (blocksize + linewidth), y + blocksize - linewidth);
     drawNextShape();
     drawHoldingShape();
-    //play2();
+    play2();
     storeShape();
-    botPlay();
+    //botPlay();
 }
 
 
@@ -128,7 +128,7 @@ function play2(){
 
         // Put your drawing code here
         if(drop(currentShape)){
-            console.log(getHoles(grid));
+            console.log("splits: " + getSplits(grid));
             fpsInterval = 1000 / fps;
             if(tetris()) console.log("TETRIS")
             currentShape = nextShape;
@@ -172,7 +172,7 @@ function rowFilled(Grid, row){
 }
 
 function getNewShape(){
-    return new Shape(2, 4, 0);
+    //return new Shape(4, 4, 0);
     return new Shape(Math.floor(Math.random()*6), 4, 0);
 }
 
@@ -383,28 +383,30 @@ function botPlay(){
 
     //if(holdingPos[0] == -5) storeShape();
     if(finalPos[0] == -5){
+       
+
         console.log("also here");
 
         finalPos = bestMove(currentShape);
         holdingPos = bestMove(holdingShape);
 
-        currentShape.rotate();
-        holdingShape.rotate();
+        
 
         if(holdingPos[2] > finalPos[2]){
             storeShape();
             currentShape.x = holdingPos[0];
-            for(let i = 0; i < holdingPos[1]-1; i++){
+            for(let i = 0; i < holdingPos[1]; i++){
                 currentShape.rotate;
             }
         }
         else{
             currentShape.x = finalPos[0];
         
-            for(let i = 0; i < finalPos[1]-1; i++){
+            for(let i = 0; i < finalPos[1]; i++){
                 currentShape.rotate();
             }
         }
+
 
         currentShape.y = 0;
     } 
@@ -465,6 +467,10 @@ function bestMove(shape){
             
             //console.log(copyGrid);
             score = shape.y * 10 + evaluateGrid(copyGrid);
+
+            //score = shape.y * 10 + EvaluateBoard(copyGrid);
+
+            
             if(score > bestScore){
                 bestScore = score;
                 bestPos = [pos, rotation, bestScore];
@@ -484,7 +490,7 @@ function bestMove(shape){
 }
 
 function evaluateGrid(Grid){
-    let score = 0, holes = 0, filledRows = 0, unevenness;
+    let score = 0, holes, filledRows = 0, unevenness, splits;
 
     for(let i = height-1; i > -1; i--){
         if(rowFilled(Grid, i)) filledRows++;
@@ -494,11 +500,12 @@ function evaluateGrid(Grid){
 
     unevenness = getUnevenness(Grid);
 
+    splits = getSplits(Grid);
 
     switch(filledRows){
-        case 1:
-            score += 40;
-            break;
+        // case 1:
+        //     score += 40;
+        //     break;
         case 2:
             score += 100;
             break;
@@ -510,10 +517,9 @@ function evaluateGrid(Grid){
             break;   
     }
     
-
+    score -= splits * 5;
     score -= unevenness;
-    score -= holes * 21;
-    console.log(score);
+    score -= holes * 25;
     return score;
 }
 
@@ -525,6 +531,20 @@ function getHoles(Grid){
         }
     }
     return holes;
+}
+
+function getSplits(Grid){
+    let splits = 0;
+    for(let i = height-3; i > -1; i--){
+        for(let j = 0; j < width; j++){
+            if(Grid[i][j]>0) continue;
+            if((j == 0 || Grid[i][j-1] > 0) && (j == width-1 || Grid[i][j+1] > 0)
+            && (j == 0 || Grid[i+1][j-1] > 0) && (j == width-1 || Grid[i+1][j+1] > 0)
+            && (j == 0 || Grid[i+2][j-1] > 0) && (j == width-1 || Grid[i+2][j+1] > 0)
+            ) splits++;
+        }
+    }
+    return splits;
 }
 
 
@@ -561,6 +581,77 @@ function getUnevenness(Grid){
 
     return unevenness;
 }
+
+
+function EvaluateBoard(copyGrid)
+    {
+        let unebenheit = 0, level = 0;
+        let splits = 0;
+        let score = 0;
+        let holes = 0;
+        let split;
+        let isTetris;
+        let empty;
+        for (let i = 19; i > -1; i--)
+        {
+            isTetris = true;
+            empty = true;
+            for (let j = 0; j < 10; j++)
+            {
+
+                if (copyGrid[i][j] == 0)
+                {
+                    split = true;
+                    isTetris = false;
+                    if (i > 0 && copyGrid[i - 1][j] != 0) //ein Block ist über einem freien Feld
+                    {
+                        holes++;
+                    }
+
+                    if(i > 2)
+                    for (let k = 0; k < 3; k++)
+                    {
+                        if (!((j == 0 || copyGrid[(i - k)][j - 1] != 0) &&
+                              (j == 9 || copyGrid[(i - k)][j + 1] != 0))) split = false;
+                    }
+
+                    if (split) splits++;
+                }
+                else
+                {
+                    empty = false;
+                }
+            }
+
+            if (isTetris) score += 200;
+            if (empty)
+            {
+                for (let j = 0; j < 10; j++)
+                {
+                    for (let k = i; k < 19; k++)
+                    {
+                        if (copyGrid[k][j] == 0) continue;
+                        if (j == 0) level = k;
+                        else
+                        {
+                            unebenheit += Math.abs(level - k);
+                            level = k;
+                        }
+
+                        break;
+                    }
+                }
+
+                break;
+            }
+
+        }
+
+        score -= unebenheit;
+        score -= 21 * holes;
+        score -= 5 * splits;
+        return score;
+    }
 
 
 

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>connect4</title>
+    <script src="../scripts/connect4.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../styles/tree.css">
+
+</head>
+<body onload="Start()">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">page</a></li>
+                <li><a href="tsm.html">Traveling Sales Man</a></li>
+                <li><a href = "mandelbrot.html">Mandelbrot</a></li>
+                <li><a href = "tree.html">tree</a></li>
+                <li><a href = "triangle.html">triangle</a></li>
+                <li><a href = "rain.html">spinning</a></li>
+
+                <li><a href = "tetris.html">tetris</a></li>
+                <li><a href = "connect4.html">connect 4</a></li>
+
+
+
+
+            </ul>
+        </nav>
+        <h1>connect 4</h1>
+    </header>
+
+    <section>
+        <div onmousemove="getMousePos(event)">
+            <canvas id = 'canvas', width = 1080, height = 720, ></canvas>
+        </div>
+
+        <div class="navigation">
+            <div class="slider">
+            <input type="range" min="0" max="180" value = "90" id="angleSlider">
+            <p>angle: <span id="alpha"></span></p>
+            <button onclick="rotate()">drehen</button>
+            </div>
+
+           
+        </div>
+        
+    </section>
+
+    <footer>
+    </footer>
+    
+        
+    
+    
+    <div>
+        
+    </div>
+    
+
+</body>
+</html> 
