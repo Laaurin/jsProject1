@@ -21,7 +21,7 @@ let currentShape, nextShape, holdingShape;
 var fps, fpsInterval, startTime, now, then, elapsed;
 
 //für minimax ´/negamax variante
-let gewünschteTiefe = 6, gespeicherterZug;
+let gewünschteTiefe = 9, gespeicherterZug;
 
 
 function Start(){
@@ -51,9 +51,6 @@ function Start(){
     drawPieces();
 }
 
-function botMove(){
-
-}
 
 function negamax(node, depth, alpha, beta, turn){
     let temp = isTerminal(node);
@@ -101,24 +98,26 @@ function negamax(node, depth, alpha, beta, turn){
     return evaluation;
 }
 
-function minimax(turn, depth){
+function minimax(turn, depth, alpha, beta){
     
     if(depth == 0 || isTerminal(grid) != -1){
         return evaluateNode(grid, turn);
     }
-    let maxValue = -Infinity;
+    let maxValue = alpha;
     for(let i = 0; i < width; i++){
         if(!isPlayable(grid, i)) continue;
         grid[drop(grid, i)][i] = turn;
         
 
-        let wert = -minimax((turn+1)%2, depth-1);
+        let wert = -minimax((turn+1)%2, depth-1, -beta, -maxValue);
         undoLastDrop(i);
         if(wert > maxValue){
             maxValue = wert;
             if(depth == gewünschteTiefe){
-
                 gespeicherterZug = i;
+            }
+            if(maxValue >= beta){
+                break;
             }
         }
     }
@@ -344,7 +343,11 @@ function getCursorPosition(canvas, event) {
             case -1:
                 value++;
                 //printGridToConsole();
-                minimax(value%2, gewünschteTiefe);
+                var t1 = new Date();
+                minimax(value%2, gewünschteTiefe, -Infinity, Infinity);
+                var t2 = new Date();
+                var dt = t2 - t1;
+                console.log('elapsed time = ' + dt + ' ms');
                 if(gespeicherterZug != null) console.log("gespeicherter zug: " + gespeicherterZug);
 
                 break;
