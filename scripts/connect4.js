@@ -1,7 +1,7 @@
 let canvas;
 let ctx;
 let id;
-let mouseX;
+let mouseX, clientY;
 
 let width = 7;
 let height = 6;
@@ -19,6 +19,9 @@ let pieceRadius, gapSize = 12;
 let currentShape, nextShape, holdingShape;
 
 var fps, fpsInterval, startTime, now, then, elapsed;
+
+//für minimax ´/negamax variante
+let gewünschteTiefe = 6, gespeicherterZug;
 
 
 function Start(){
@@ -43,7 +46,7 @@ function Start(){
     then = Date.now();
     startTime = then;
 
-    //play();
+    play();
     drawGrid();
     drawPieces();
 }
@@ -84,7 +87,10 @@ function negamax(node, depth, alpha, beta, turn){
         let y = drop(copyNode, i);
         copyNode[y][i] = turn;
 
-        
+        for(let idx = 0; idx < grid.length; idx++){
+            console.log(copyNode[idx]);
+        }
+
 
         evaluation = Math.max(value, -negamax(copyNode, depth-1, -beta, -alpha, (turn+1)%2));
         console.log("evaluation: " + evaluation);
@@ -95,9 +101,47 @@ function negamax(node, depth, alpha, beta, turn){
     return evaluation;
 }
 
+function minimax(turn, depth){
+    
+    if(depth == 0 || isTerminal(grid) != -1){
+        return evaluateNode(grid, turn);
+    }
+    let maxValue = -Infinity;
+    for(let i = 0; i < width; i++){
+        if(!isPlayable(grid, i)) continue;
+        grid[drop(grid, i)][i] = turn;
+        
+
+        let wert = -minimax((turn+1)%2, depth-1);
+        undoLastDrop(i);
+        if(wert > maxValue){
+            maxValue = wert;
+            if(depth == gewünschteTiefe){
+
+                gespeicherterZug = i;
+            }
+        }
+    }
+
+    return maxValue;
+}
+
 function evaluateNode(Grid, turn){
     let score = 0;
     let window = [];
+
+    let winner = connect4(Grid);
+    if(winner == turn){
+        // printGridToConsole()
+        // console.log("yes winning ^");
+        return Infinity;
+    } 
+    else if(winner == (turn+1)%2){
+        // printGridToConsole()
+        // console.log("no loosing ^");
+        return -Infinity;
+    } 
+
     for(let i = 0; i < width; i++){
         for(let j = 0; j < height; j++){
             // if(i < width-3){
@@ -153,7 +197,7 @@ function evaluateWindow(window, turn){
 
 function play(){
 
-    if(!paused)requestAnimationFrame(play);
+    requestAnimationFrame(play);
 
     now = Date.now();
 
@@ -161,26 +205,33 @@ function play(){
 
     
 
-    // if(mouseX >= x && mouseX <= width * (blocksize+linewidth)+x){
-    //     let newX = Math.floor((mouseX-x)/(blocksize+linewidth));
-    //     if(validPosition(currentShape, newX, currentShape.y)) currentShape.x = newX;//-Math.floor(currentShape.len/2);
-    //     //console.log("newX: " + newX);
-
-    // }
+    if(mouseX > offsetX && mouseX < offsetX + width * (pieceRadius*2+gapSize) && mouseY < offsetY + (height+2) * (pieceRadius*2+gapSize) && mouseY > offsetY){
+    
+            let x = Math.floor((mouseX-offsetX)/(pieceRadius*2+gapSize));
+            if(isPlayable(grid, x)){
+                let y = drop(grid, x);
+                //ctx.clearRect(offsetX, offsetY, width * (pieceRadius*2 + gapSize), height * (pieceRadius*2 + gapSize));
+                drawGrid();
+                drawPieces();
+                drawPiece(x, y, getColor((value)%2));
+            }
+            
+        }
 
     // if enough time has elapsed, draw the next frame
-    if (elapsed > fpsInterval) {
 
-        // Get ready for next frame by setting then=now, but also adjust for your
-        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
-        then = now - (elapsed % fpsInterval);
+    // if (elapsed > fpsInterval) {
 
-        // Put your drawing code here
-        drawGrid();
-        drawPieces();
-        value++;
+    //     // Get ready for next frame by setting then=now, but also adjust for your
+    //     // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+    //     then = now - (elapsed % fpsInterval);
 
-    }
+    //     // Put your drawing code here
+    //     drawGrid();
+    //     drawPieces();
+    //     value++;
+
+    // }
 }
 
 function connect4(Grid){
@@ -220,6 +271,15 @@ function drop(Grid, row){
     return col;
 }
 
+function undoLastDrop(row){
+    for(let i = 0; i < height; i++){
+        if(grid[i][row] != empty){
+            grid[i][row] = empty;
+            return;
+        } 
+    }
+}
+
 function isPlayable(Grid, col){
     return Grid[0][col] == empty;
 }
@@ -232,13 +292,13 @@ function drawGrid(){
 function drawPieces(){
     for(let i = 0; i < width; i++){
         for(let j = 0; j < height; j++){
-            drawPiece(i, j)
+            drawPiece(i, j, getColor(grid[j][i]))
         }
     }
 }
 
-function drawPiece(centerX, centerY){
-    ctx.fillStyle = getColor(grid[centerY][centerX]);
+function drawPiece(centerX, centerY, color){
+    ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(offsetX + (centerX+1) * (pieceRadius*2+gapSize) - pieceRadius, offsetY + (centerY+1) * (pieceRadius*2+gapSize) - pieceRadius, pieceRadius, 0, 2 * Math.PI, false);
     ctx.fill();
@@ -276,32 +336,16 @@ function getCursorPosition(canvas, event) {
     // console.log("x: " + row)
     // console.log(value);
     if(isPlayable(grid, x)) {
-        y = drop(grid, x, value);
+        y = drop(grid, x);
         grid[y][x] = value%2;
-        drawPiece(x, y);
+        drawPiece(x, y, getColor(grid[y][x]));
         let temp = isTerminal(grid);
         switch(temp){
             case -1:
                 value++;
-                let score, bestScore = -Infinity, bestMove = -1, copyNode = [];
-                for(let i = 0; i < width; i++){
-                    if(!isPlayable(grid, i)) continue;
-                    
-                    for(let idx = 0; idx < grid.length; idx++){
-                        copyNode[idx] = grid[idx].slice();
-                    }
-                    
-                    drop(copyNode, i);
-            
-                    score = negamax(copyNode, 2, -Infinity, Infinity, value%2);
-                    console.log("score: " + score + ", pos: " + i);
-
-                    if(score > bestScore){
-                        bestScore = score;
-                        bestMove = i;
-                    }
-                }
-                console.log("bestMove: " + bestMove);
+                //printGridToConsole();
+                minimax(value%2, gewünschteTiefe);
+                if(gespeicherterZug != null) console.log("gespeicherter zug: " + gespeicherterZug);
 
                 break;
             case 0:
@@ -328,6 +372,34 @@ document.addEventListener('mousedown', function(e) {
 
 function getMousePos(event){
     mouseX = event.clientX;
+    mouseY = event.clientY;
+}
+
+function printGridToConsole(){
+    for(let i = 0; i < height; i++){
+        let myString = "";
+        myString+=i;
+        for(let j = 0; j < width; j++){
+            
+            let sign = grid[i][j];
+            if(sign == empty) myString+= " - ";
+            else if(sign == 1) myString+= " x ";
+            else if(sign == 0)myString+= " o ";
+            else {
+                myString+=" ";
+                myString+=sign;
+                myString+=" ";
+
+            }
+        }
+        
+        console.log(myString);
+    }
+    console.log("---------------------");
+}
+
+function displayNextPossibleMove(){
+
 }
 
 

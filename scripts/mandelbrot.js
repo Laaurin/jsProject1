@@ -24,6 +24,11 @@ function Start(){
     document.getElementById("zoom").innerHTML = zoom;
 
     ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth * 0.8;
+    canvas.height = window.innerHeight * 0.8;
+
+    
     
     console.log(qSlider.value);
     console.log(parseInt(qSlider.value));
@@ -77,19 +82,33 @@ function MandelBrot(xx, yy, zoom, MaxIterations){
     let IncrementX = (4 / canvas.width) / zoom;
     let IncrementY = (2 / canvas.height) / zoom;
 
+    ctx.fillStyle = "#3b3b3b";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    var id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var pixels = id.data;
+
+    
+
+    //ctx.ClearRect(0, 0, canvas.width, canvas.height)
+
     for(let i = 0; i < canvas.height; i+=quality){
         xx = xStart;
         for(let j = 0; j < canvas.width; j+=quality){
+            //setzt einzelne pixel mit putImageData
             let value = IsInMandelBrot(new Complex(xx, yStart), MaxIterations);
-            // if(value == 0){22222222222222222222222222
-            //     drawPixel(j, i, 'black');
-            // }
-            // else{drawPixel(j, i, 'red');}
-            drawPixel(j, i, GetColor(value));
+            var off = (i * id.width + j) * 4;
+            pixels[off] = pixels[off + 1] = pixels[off + 2] = GetColorReDo(value);
+           
+            pixels[off + 3] = 255;
+
+            //oder viele Quadrate zeichnen
+            //drawPixel(j, i, GetColor(5));
             xx += IncrementX * quality;
         }
         yStart -= IncrementY * quality;
     }
+    ctx.putImageData(id, 0, 0);
     //DrawGrid(xStart, IncrementX, yStart, IncrementY);
 }
 
@@ -213,6 +232,33 @@ function GetColor(value){
             return "#303030";
         case 1:
             return "#2c2c2c";
+    }
+    return ;
+}
+
+function GetColorReDo(value){
+    value = Math.round(Math.pow(value, 0.2) * 10);
+    switch(value){
+        case 10:
+            return 255;
+        case 9:
+            return 240;
+        case 8:
+            return 224; // 4.
+        case 7:
+            return 207; //dritt äußerste zackige fläche im kreis
+        case 6:
+            return 171; //zweite äußerste zackige fläche im kreis
+        case 4:
+            return 102; //kreis der fraktal eingrenzt
+        case 5:
+            return 128; //äußerste zackige fläche im kreis
+        case 3:
+            return 61; // größte fläche außen
+        case 2:
+            return 48;
+        case 1:
+            return 44;
     }
     return ;
 }
