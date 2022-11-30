@@ -23,6 +23,8 @@ var fps, fpsInterval, startTime, now, then, elapsed;
 //für minimax ´/negamax variante
 let gewünschteTiefe = 9, gespeicherterZug;
 
+let posLastDrop = -1, againstBot = false;
+
 
 function Start(){
     canvas = document.getElementById('canvas');
@@ -37,7 +39,7 @@ function Start(){
     canvas.width = window.innerWidth * 0.8;
     canvas.height = window.innerHeight * 0.8;
 
-    pieceRadius = canvas.height / 30;
+    pieceRadius = Math.min(canvas.height, canvas.width) / 30;
     offsetX = canvas.width/2-width*(pieceRadius+gapSize)/2;
 
     fps = 30;
@@ -49,7 +51,9 @@ function Start(){
     play();
     drawGrid();
     drawPieces();
+
 }
+
 
 
 function negamax(node, depth, alpha, beta, turn){
@@ -107,8 +111,6 @@ function minimax(turn, depth, alpha, beta){
     for(let i = 0; i < width; i++){
         if(!isPlayable(grid, i)) continue;
         grid[drop(grid, i)][i] = turn;
-        
-
         let wert = -minimax((turn+1)%2, depth-1, -beta, -maxValue);
         undoLastDrop(i);
         if(wert > maxValue){
@@ -123,6 +125,16 @@ function minimax(turn, depth, alpha, beta){
     }
 
     return maxValue;
+}
+
+function botMove(){
+    var t1 = new Date();
+    var score = minimax(value%2, gewünschteTiefe, -Infinity, Infinity);
+    var t2 = new Date();
+    var dt = t2 - t1;
+    console.log('elapsed time = ' + dt + ' ms');
+    if(gespeicherterZug != null) console.log("gespeicherter zug: " + gespeicherterZug + " score: " + score);
+
 }
 
 function evaluateNode(Grid, turn){
@@ -143,18 +155,18 @@ function evaluateNode(Grid, turn){
 
     for(let i = 0; i < width; i++){
         for(let j = 0; j < height; j++){
-            // if(i < width-3){
-            //     window = [Grid[j][i], Grid[j][i+1], Grid[j][i+2], Grid[j][i+3]];
-            //     score += evaluateWindow(window, turn);
-            // }
-            // if(j < height-3){
-            //     window = [Grid[j][i], Grid[j+1][i], Grid[j+2][i], Grid[j+3][i]];
-            //     score += evaluateWindow(window, turn);
-            // }
-            // if(i > 2 && j < height-3){
-            //     window = [Grid[j][i], Grid[j+1][i-1], Grid[j+2][i-2], Grid[j+3][i-3]];
-            //     score += evaluateWindow(window, turn);
-            // }
+            if(i < width-3){
+                window = [Grid[j][i], Grid[j][i+1], Grid[j][i+2], Grid[j][i+3]];
+                score += evaluateWindow(window, turn);
+            }
+            if(j < height-3){
+                window = [Grid[j][i], Grid[j+1][i], Grid[j+2][i], Grid[j+3][i]];
+                score += evaluateWindow(window, turn);
+            }
+            if(i > 2 && j < height-3){
+                window = [Grid[j][i], Grid[j+1][i-1], Grid[j+2][i-2], Grid[j+3][i-3]];
+                score += evaluateWindow(window, turn);
+            }
             // if(i < width-3 && j < width-3){
             //     window = [Grid[j][i], Grid[j+1][i+1], Grid[j+2][i+2], Grid[j+3][i+3]];
             //     score += evaluateWindow(window, turn);
@@ -187,7 +199,6 @@ function evaluateWindow(window, turn){
     }
 
     if(amountTurn == 3 && amountEmpty == 1) return 20;
-    if(amountOpponent == 3 && amountTurn == 1) return 20;
     if(amountOpponent == 3 && amountEmpty == 1) return -20;
 
     return 0;
@@ -198,13 +209,12 @@ function play(){
 
     requestAnimationFrame(play);
 
-    now = Date.now();
+    // now = Date.now();
 
-    elapsed = now - then;
+    // elapsed = now - then;
 
-    
-
-    if(mouseX > offsetX && mouseX < offsetX + width * (pieceRadius*2+gapSize) && mouseY < offsetY + (height+2) * (pieceRadius*2+gapSize) && mouseY > offsetY){
+    if(mouseX > offsetX && mouseX < offsetX + width * (pieceRadius*2+gapSize) &&
+        mouseY < offsetY + (height+2) * (pieceRadius*2+gapSize) && mouseY > offsetY && !gameOver){
     
             let x = Math.floor((mouseX-offsetX)/(pieceRadius*2+gapSize));
             if(isPlayable(grid, x)){
@@ -212,7 +222,8 @@ function play(){
                 //ctx.clearRect(offsetX, offsetY, width * (pieceRadius*2 + gapSize), height * (pieceRadius*2 + gapSize));
                 drawGrid();
                 drawPieces();
-                drawPiece(x, y, getColor((value)%2));
+                if(value%2 == 0) drawPiece(x, y, "#963533");
+                else drawPiece(x, y, "#969133");
             }
             
         }
@@ -270,13 +281,15 @@ function drop(Grid, row){
     return col;
 }
 
-function undoLastDrop(row){
+function undoLastDrop(x){
+    if(posLastDrop == -1) return;
     for(let i = 0; i < height; i++){
-        if(grid[i][row] != empty){
-            grid[i][row] = empty;
+        if(grid[i][x] != empty){
+            grid[i][x] = empty;
             return;
         } 
     }
+    posLastDrop = -1;
 }
 
 function isPlayable(Grid, col){
@@ -327,45 +340,47 @@ function getCursorPosition(canvas, event) {
     }
     const rect = canvas.getBoundingClientRect()
     const mouseX = event.clientX - rect.left
-    //const mouseY = event.clientY - rect.top
+    const mouseY = event.clientY - rect.top
 
+    
+    if(mouseX < offsetX || mouseX > offsetX + width * (pieceRadius*2+gapSize) || mouseY > offsetY + (height) * (pieceRadius*2+gapSize) || mouseY < offsetY) return;
+    
     let x = Math.floor((mouseX-offsetX)/(pieceRadius*2+gapSize));
     let y;
 
+    if(!isPlayable(grid, x)) return;
+
     // console.log("x: " + row)
     // console.log(value);
-    if(isPlayable(grid, x)) {
-        y = drop(grid, x);
-        grid[y][x] = value%2;
-        drawPiece(x, y, getColor(grid[y][x]));
-        let temp = isTerminal(grid);
-        switch(temp){
-            case -1:
-                value++;
-                //printGridToConsole();
-                var t1 = new Date();
-                minimax(value%2, gewünschteTiefe, -Infinity, Infinity);
-                var t2 = new Date();
-                var dt = t2 - t1;
-                console.log('elapsed time = ' + dt + ' ms');
-                if(gespeicherterZug != null) console.log("gespeicherter zug: " + gespeicherterZug);
+    
+    y = drop(grid, x);
+    grid[y][x] = value%2;
+    posLastDrop = x;
+    drawPiece(x, y, getColor(grid[y][x]));
+    let temp = isTerminal(grid);
+    switch(temp){
+        case -1:
+            value++;
+            //printGridToConsole();
+            if(againstBot) botMove();
+            
 
-                break;
-            case 0:
-                gameOver = true;
-                console.log("red won!");
-                break;
-            case 1:
-                gameOver = true;
-                console.log("yellow won!");
-                break;
-            case 2:
-                gameOver = true;
-                console.log("game tied");
-        }
-        
-        
+            break;
+        case 0:
+            gameOver = true;
+            console.log("red won!");
+            break;
+        case 1:
+            gameOver = true;
+            console.log("yellow won!");
+            break;
+        case 2:
+            gameOver = true;
+            console.log("game tied");
     }
+        
+        
+    
 
 }
 
@@ -401,8 +416,13 @@ function printGridToConsole(){
     console.log("---------------------");
 }
 
-function displayNextPossibleMove(){
+function buttonUndoLastDrop(){
+    undoLastDrop(posLastDrop);
+    value++;
+}
 
+function toggleAgainstBot(){
+    againstBot = !againstBot;
 }
 
 

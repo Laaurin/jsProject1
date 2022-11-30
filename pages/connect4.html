@@ -23,10 +23,6 @@
 
                 <li><a href = "tetris.html">tetris</a></li>
                 <li><a href = "connect4.html">connect 4</a></li>
-
-
-
-
             </ul>
         </nav>
         <h1>connect 4</h1>
@@ -41,10 +37,15 @@
             <div class="slider">
             <input type="range" min="0" max="180" value = "90" id="angleSlider">
             <p>angle: <span id="alpha"></span></p>
-            <button onclick="rotate()">drehen</button>
+            
             </div>
 
-           
+            <button onclick="buttonUndoLastDrop()">zurück</button>
+            <div class="slider">
+                <input type="checkbox" id="againstBot" onclick="toggleAgainstBot()"/>
+                <p>against bot</p>
+            </div>
+            
         </div>
         
     </section>
