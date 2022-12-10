@@ -21,7 +21,7 @@ let currentShape, nextShape, holdingShape;
 var fps, fpsInterval, startTime, now, then, elapsed;
 
 //für minimax ´/negamax variante
-let gewünschteTiefe = 9, gespeicherterZug;
+let gewünschteTiefe = 8, gespeicherterZug;
 
 let posLastDrop = -1, againstBot = false;
 
@@ -39,7 +39,7 @@ function Start(){
     canvas.width = window.innerWidth * 0.8;
     canvas.height = window.innerHeight * 0.8;
 
-    pieceRadius = Math.min(canvas.height, canvas.width) / 30;
+    pieceRadius = Math.min(canvas.height, canvas.width) / 20;
     offsetX = canvas.width/2-width*(pieceRadius+gapSize)/2;
 
     fps = 30;
@@ -105,10 +105,12 @@ function negamax(node, depth, alpha, beta, turn){
 function minimax(turn, depth, alpha, beta){
     
     if(depth == 0 || isTerminal(grid) != -1){
+        //printGridToConsole();
         return evaluateNode(grid, turn);
     }
     let maxValue = alpha;
     for(let i = 0; i < width; i++){
+        //console.log("depth: " + depth + ", pos: " + i);
         if(!isPlayable(grid, i)) continue;
         grid[drop(grid, i)][i] = turn;
         let wert = -minimax((turn+1)%2, depth-1, -beta, -maxValue);
@@ -122,6 +124,10 @@ function minimax(turn, depth, alpha, beta){
                 break;
             }
         }
+
+        if(depth == gewünschteTiefe){
+            console.log("position: " + i + ", evaluation: " + wert + ", turn: " + turn);
+        }
     }
 
     return maxValue;
@@ -133,8 +139,14 @@ function botMove(){
     var t2 = new Date();
     var dt = t2 - t1;
     console.log('elapsed time = ' + dt + ' ms');
-    if(gespeicherterZug != null) console.log("gespeicherter zug: " + gespeicherterZug + " score: " + score);
-
+    if(gespeicherterZug == null) {
+        console.log("kein zug gefunden! :(")
+        return;
+    };
+    console.log("gespeicherter zug: " + gespeicherterZug + " score: " + score);
+    grid[drop(grid, gespeicherterZug)][gespeicherterZug] = value%2;
+    gespeicherterZug = -1;
+    value++;
 }
 
 function evaluateNode(Grid, turn){
@@ -176,6 +188,7 @@ function evaluateNode(Grid, turn){
             else score -= 10-Math.abs(3-i);
         }
     }
+    //console.log(score);
     return score;
 }
 
@@ -369,10 +382,14 @@ function getCursorPosition(canvas, event) {
         case 0:
             gameOver = true;
             console.log("red won!");
+          showWinner();
+
             break;
         case 1:
             gameOver = true;
             console.log("yellow won!");
+        showWinner();
+
             break;
         case 2:
             gameOver = true;
@@ -413,7 +430,53 @@ function printGridToConsole(){
         
         console.log(myString);
     }
-    console.log("---------------------");
+    console.log("-----------------");
+}
+
+function showWinner(){
+    ctx.fillStyle = "#323232";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 0.5;
+    drawGrid();
+    drawPieces();
+    ctx.globalAlpha = 1;
+
+    pos = [];
+    for(let i = 0; i < width; i++){
+        for(let j = 0; j < height; j++){
+            if(grid[j][i] == empty)continue;
+            let color = grid[j][i];
+            if(i < width-3 && grid[j][i+1] == grid[j][i+2] && grid[j][i+1] == grid[j][i+3] && grid[j][i+1] == color) {
+                pos = [[j, i], [j, i+1], [j, i+2], [j, i+3]];
+                break;
+            }
+            if(j < height-3 && grid[j+1][i] == grid[j+2][i] && grid[j+1][i] == grid[j+3][i] && grid[j+1][i] == color) {
+                pos = [[j, i], [j+1, i], [j+2, i], [j+3, i]];
+                break;
+            };
+            if(i < width-3 && j < height-3 && grid[j+1][i+1] == grid[j+2][i+2] && grid[j+1][i+1] == grid[j+3][i+3] && grid[j+1][i+1] == color) {
+                pos = [[j, i], [j+1, i+1], [j+2, i+2], [j+3, i+3]];
+                break;
+            }
+            if(i > 2 && j < height-3 && grid[j+1][i-1] == grid[j+2][i-2] && grid[j+1][i-1] == grid[j+3][i-3] && grid[j+1][i-1] == color) {
+                pos = [[j, i], [j+1, i-1], [j+2, i-2], [j+3, i-3]];
+                break;
+            };
+        }
+    }
+    ctx.fillStyle = getColor(connect4(grid));
+    for(let i = 0; i < 4; i++){
+        ctx.beginPath();
+        ctx.arc(offsetX + (pos[i][1]+1) * (pieceRadius*2+gapSize) - pieceRadius, offsetY + (pos[i][0]+1) * (pieceRadius*2+gapSize) - pieceRadius, pieceRadius, 0, 2 * Math.PI, false);
+        ctx.lineWidth = 5;
+        ctx.fill();
+        ctx.stroke();
+    }
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(offsetX + + (pos[0][1]+1) * (pieceRadius*2+gapSize) - pieceRadius, offsetY + (pos[0][0]+1) * (pieceRadius*2+gapSize) - pieceRadius);
+    ctx.lineTo(offsetX + + (pos[3][1]+1) * (pieceRadius*2+gapSize) - pieceRadius, offsetY + (pos[3][0]+1) * (pieceRadius*2+gapSize) - pieceRadius);
+    //ctx.stroke();
 }
 
 function buttonUndoLastDrop(){
